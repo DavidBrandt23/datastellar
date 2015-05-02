@@ -19,45 +19,67 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Text;
 
 
-public class InsertInhabitsPage {
-	public static Composite createInhabitsPage(Composite parent, Connection conn) {
-		Composite inhabitsInsertPage = new Composite(parent, SWT.NONE);
-		// planetInsertPage.setBackground(new Color(Display.getCurrent(), 255,
-		// 0, 0));
-		
+public class InsertSpeciesPage {
+	public static Composite createSpeciesPage(Composite parent, Connection conn) {
+		Composite speciesInsertPage = new Composite(parent, SWT.NONE);
 		//Same stuff as before
 		GridLayout insertGL = new GridLayout(4, true);
 
 		GridData insertGD = new GridData(SWT.FILL, SWT.CENTER, true, false);
 
-
-		insertGD = new GridData(SWT.FILL, SWT.CENTER, true, false);
-		Label species = new Label(inhabitsInsertPage, SWT.FILL);
+		Label name = new Label(speciesInsertPage, SWT.FILL);
 		insertGD.horizontalSpan = 4;
-		species.setText("Species:");
-		species.setLayoutData(insertGD);
+		name.setText("Name:");
+		name.setLayoutData(insertGD);
 
-		insertGD = new GridData(SWT.FILL, SWT.CENTER, false, false);
-		Combo speciesSelect = new Combo(inhabitsInsertPage, SWT.DROP_DOWN
-				| SWT.READ_ONLY);
-		insertGD.horizontalSpan = 2;
-		speciesSelect.setLayoutData(insertGD);
-
+		//Text is an editable textbox, you can set it to read-only by replacing the SWT.NONE in the contructor, but this is how
+		// users will enter data to insert in the DB
+		insertGD = new GridData(SWT.FILL, SWT.CENTER, true, false);
+		insertGD.horizontalSpan = 1;
+		Text nameBox = new Text(speciesInsertPage, SWT.NONE);
+		nameBox.setLayoutData(insertGD);
 
 		insertGD = new GridData(SWT.FILL, SWT.CENTER, true, false);
-		Label planet = new Label(inhabitsInsertPage, SWT.FILL);
+		Label height = new Label(speciesInsertPage, SWT.FILL);
 		insertGD.horizontalSpan = 4;
-		planet.setText("Planet:");
-		planet.setLayoutData(insertGD);
-
-		insertGD = new GridData(SWT.FILL, SWT.CENTER, false, false);
-		Combo planetSelect = new Combo(inhabitsInsertPage, SWT.DROP_DOWN
-				| SWT.READ_ONLY);
-		insertGD.horizontalSpan = 2;
-		planetSelect.setLayoutData(insertGD);
+		height.setText("Height:");
+		height.setLayoutData(insertGD);
 
 		insertGD = new GridData(SWT.FILL, SWT.CENTER, true, false);
-		Label errorText = new Label(inhabitsInsertPage, SWT.FILL);
+		insertGD.horizontalSpan = 1;
+		Text heightBox = new Text(speciesInsertPage, SWT.NONE);
+		heightBox.setLayoutData(insertGD);
+		
+		Label heightUnit = new Label(speciesInsertPage, SWT.FILL);
+		insertGD.horizontalSpan = 1;
+		heightUnit.setText("ft");
+		heightUnit.setLayoutData(insertGD);
+        //
+		insertGD = new GridData(SWT.FILL, SWT.CENTER, true, false);
+		Label numberLiving = new Label(speciesInsertPage, SWT.FILL);
+		insertGD.horizontalSpan = 4;
+		numberLiving.setText("Number Living:");
+		numberLiving.setLayoutData(insertGD);
+		
+		insertGD = new GridData(SWT.FILL, SWT.CENTER, true, false);
+		insertGD.horizontalSpan = 1;
+		Text numberLivingBox = new Text(speciesInsertPage, SWT.NONE);
+		numberLivingBox.setLayoutData(insertGD);
+		//
+		
+		insertGD = new GridData(SWT.FILL, SWT.CENTER, true, false);
+		Label hostility = new Label(speciesInsertPage, SWT.FILL);
+		insertGD.horizontalSpan = 4;
+		hostility.setText("Hostility:");
+		hostility.setLayoutData(insertGD);
+
+		insertGD = new GridData(SWT.FILL, SWT.CENTER, true, false);
+		insertGD.horizontalSpan = 1;
+		Text hostilityBox = new Text(speciesInsertPage, SWT.NONE);
+		hostilityBox.setLayoutData(insertGD);
+
+		insertGD = new GridData(SWT.FILL, SWT.CENTER, true, false);
+		Label errorText = new Label(speciesInsertPage, SWT.FILL);
 		insertGD.horizontalSpan = 4;
 		errorText.setText("");
 		errorText.setLayoutData(insertGD);
@@ -67,81 +89,80 @@ public class InsertInhabitsPage {
 				SWT.COLOR_RED));
 
 		insertGD = new GridData(SWT.LEFT, SWT.CENTER, false, false);
-		Button submit = new Button(inhabitsInsertPage, SWT.PUSH);
+		Button submit = new Button(speciesInsertPage, SWT.PUSH);
 		insertGD.horizontalSpan = 1;
 		submit.setText("Submit");
 		submit.pack();
 		submit.setLayoutData(insertGD);
 		
 		insertGD = new GridData(SWT.LEFT, SWT.CENTER, false, false);
-		Button refresh = new Button(inhabitsInsertPage, SWT.PUSH);
+		Button refresh = new Button(speciesInsertPage, SWT.PUSH);
 		insertGD.horizontalSpan = 1;
 		refresh.setText("Refresh");
 		refresh.pack();
 		refresh.setLayoutData(insertGD);
-
-		// Now that all the widgets are made, we want to populate the "Orbits Star" and "In Galaxy" menus with
-		// values that are actually in the DB, easier to do this than check if a custom entered one is in the DB,
-		// and if it wasn't we would have to create an INSERT statement for that.
-		try {
-			PreparedStatement getSpeciesNames = conn
-					.prepareStatement("SELECT DISTINCT name FROM Species;");
-			getSpeciesNames.execute();
-			ResultSet rs = getSpeciesNames.getResultSet();
-			ResultSetMetaData rsmd = rs.getMetaData();
-
-			PreparedStatement getPlanetNames = conn
-					.prepareStatement("SELECT DISTINCT name FROM Planet;");
-			getPlanetNames.execute();
-
-			while (rs.next()) {
-				for (int i = 1; i <= rsmd.getColumnCount(); i++) {
-					String columnValue = rs.getString(i);
-					speciesSelect.add(WordUtils.capitalize(columnValue));
-				}
-			}
-
-			rs = getPlanetNames.getResultSet();
-			rsmd = rs.getMetaData();
-
-			while (rs.next()) {
-				for (int i = 1; i <= rsmd.getColumnCount(); i++) {
-					String columnValue = rs.getString(i);
-					planetSelect.add(WordUtils.capitalize(columnValue));
-				}
-			}
-
-		} catch (SQLException e) {
-			System.out.println("SQL Error");
-			e.printStackTrace();
-		}
 
 		//Listener for the submit button, the event type is SWT.Selection, NOT SWT.PUSH
 		submit.addListener(SWT.Selection, new Listener() {
 			public void handleEvent(Event event) {
 				boolean error = false;
 				// Just some basic error checking before we make the SQL statement
-				
-				if (speciesSelect.getText().equals("")) {
-					errorText.setText("You must select a Species.");
+				if (nameBox.getText().equals("")) {
+					errorText.setText("Name must not be empty.");
 					errorText.setVisible(true);
 					error = true;
 				}
-				if (planetSelect.getText().equals("")) {
-					errorText.setText("You must select a Planet.");
+				if (!NumberUtils.isNumber(heightBox.getText())) {
+					errorText.setText("Height must be a number.");
 					errorText.setVisible(true);
 					error = true;
+				}
+				if (NumberUtils.isNumber(heightBox.getText())) {
+					if (Integer.parseInt(heightBox.getText()) <= 0) {
+						errorText.setText("Height must be > 0.");
+						errorText.setVisible(true);
+						error = true;
+					}
+
+				}
+				if (!NumberUtils.isNumber(numberLivingBox.getText())) {
+					errorText.setText("Number Living must be a number.");
+					errorText.setVisible(true);
+					error = true;
+				}
+				if (NumberUtils.isNumber(numberLivingBox.getText())) {
+					if (Integer.parseInt(numberLivingBox.getText()) < 0) {
+						errorText.setText("Number Living must be >= 0.");
+						errorText.setVisible(true);
+						error = true;
+					}
+
+				}
+				if (!NumberUtils.isNumber(hostilityBox.getText())) {
+					errorText.setText("Hostility must be a number.");
+					errorText.setVisible(true);
+					error = true;
+				}
+				if (NumberUtils.isNumber(hostilityBox.getText())) {
+					if (Long.parseLong(hostilityBox.getText()) < 1 || Long.parseLong(hostilityBox.getText()) > 10) {
+						errorText.setText("Hostility must be a value in the range 1 to 10.");
+						errorText.setVisible(true);
+						error = true;
+					}
+
 				}
 				if (!error) {
 					//Now for the actual SQL statement construction
 					try {
-						PreparedStatement insertNewPlanet = conn
-								.prepareStatement("INSERT INTO Inhabits VALUE(\""
-										+ speciesSelect.getText() + "\",\""
-										+ planetSelect.getText() + "\");");
+						PreparedStatement insertNewSpecies = conn
+								.prepareStatement("INSERT INTO Species VALUE(\""
+										+ WordUtils.capitalize(nameBox.getText()) + "\","
+										+ heightBox.getText() + ","
+										+ numberLivingBox.getText() + ","
+										+ hostilityBox.getText() + ");");
 						//This sends it to the server
-						insertNewPlanet.execute();
-						System.out.println("Inserting " + speciesSelect.getText() + " inhabits " + planetSelect.getText());
+						insertNewSpecies.execute();
+						System.out.println("Inserting " + nameBox.getText());
 
 					} catch (SQLException e) {
 						System.out.println("SQL Error");
@@ -152,52 +173,8 @@ public class InsertInhabitsPage {
 			}
 		});
 		
-		// This is for the refresh button, when pushed we want it to re-query the server for any possible stars
-		// or galaxies added. The composites DO NOT refresh on their own.
-		refresh.addListener(SWT.Selection, new Listener() {
-			public void handleEvent(Event event) {
-				try {
-					PreparedStatement getSpeciesNames = conn
-							.prepareStatement("SELECT DISTINCT name FROM Species;");
-					getSpeciesNames.execute();
-					ResultSet rs = getSpeciesNames.getResultSet();
-					ResultSetMetaData rsmd = rs.getMetaData();
-
-					PreparedStatement getPlanetNames = conn
-							.prepareStatement("SELECT DISTINCT name FROM Planet;");
-					getPlanetNames.execute();
-					
-					// Removes all of the options from the starSelect Combo
-					speciesSelect.removeAll();
-					//Now we add a fresh list back in
-					while (rs.next()) {
-						for (int i = 1; i <= rsmd.getColumnCount(); i++) {
-							String columnValue = rs.getString(i);
-							speciesSelect.add(WordUtils.capitalize(columnValue));
-						}
-					}
-
-					rs = getPlanetNames.getResultSet();
-					rsmd = rs.getMetaData();
-					
-					// Do the same for the galaxy list
-					planetSelect.removeAll();
-					while (rs.next()) {
-						for (int i = 1; i <= rsmd.getColumnCount(); i++) {
-							String columnValue = rs.getString(i);
-							planetSelect.add(WordUtils.capitalize(columnValue));
-						}
-					}
-
-				} catch (SQLException e) {
-					System.out.println("SQL Error");
-					e.printStackTrace();
-				}
-			}
-		});
-
 		//Tell the composite to use that layout and its widget children
-		inhabitsInsertPage.setLayout(insertGL);
-		return inhabitsInsertPage;
+		speciesInsertPage.setLayout(insertGL);
+		return speciesInsertPage;
 	}
 }
